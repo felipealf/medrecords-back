@@ -1,0 +1,125 @@
+openapi: 3.0.3
+info:
+  title: MedRecords API
+  version: 1.0.0
+  description: Backend API for MedRecords platform
+servers:
+  - url: http://localhost:3000/api/v1
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: API healthy
+  /auth/register:
+    post:
+      summary: Register user
+      responses:
+        "201":
+          description: Created
+  /auth/login:
+    post:
+      summary: Login user
+      responses:
+        "200":
+          description: Authenticated
+  /auth/refresh:
+    post:
+      summary: Refresh session
+      responses:
+        "200":
+          description: Refreshed
+  /auth/me:
+    delete:
+      summary: Delete authenticated account
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Deleted
+  /clinical/me:
+    get:
+      summary: Get own clinical profile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Clinical profile
+    put:
+      summary: Create/update own clinical profile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Updated
+  /public/{slug}/access:
+    post:
+      summary: Access public clinical profile with public password
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Clinical profile data
+        "401":
+          description: Invalid password
+        "404":
+          description: Not found
+  /public/password:
+    put:
+      summary: Set/change public access password
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Updated
+  /public/status:
+    put:
+      summary: Enable or disable public profile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Updated
+  /public/link:
+    get:
+      summary: Get public link
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Public link info
+  /public/qr:
+    get:
+      summary: Generate QR as SVG string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: QR generated
+  /public/print/qr:
+    get:
+      summary: Printable payload for QR only
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Printable QR payload
+  /public/print/password:
+    post:
+      summary: Printable payload for public password only
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Printable password payload
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

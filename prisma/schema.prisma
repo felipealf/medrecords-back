@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                      String           @id @default(cuid())
+  username                String           @unique
+  email                   String           @unique
+  passwordHash            String
+  publicAccessPasswordHash String?
+  publicProfileSlug       String           @unique
+  publicProfileEnabled    Boolean          @default(true)
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+  deletedAt               DateTime?
+  clinicalProfile         ClinicalProfile?
+  refreshTokens           RefreshToken[]
+}
+
+model ClinicalProfile {
+  id                        String   @id @default(cuid())
+  userId                    String   @unique
+  firstNameEnc              String
+  lastNameEnc               String
+  sexEnc                    String
+  emergencyContactNameEnc   String
+  emergencyContactPhoneEnc  String
+  emergencyContactEmailEnc  String?
+  bloodTypeEnc              String
+  allergiesEnc              String
+  medicationsEnc            String
+  diseasesEnc               String
+  surgeriesEnc              String
+  notesEnc                  String?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+  user                      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RefreshToken {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  revokedAt  DateTime?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PublicAccessAttempt {
+  id         String   @id @default(cuid())
+  slug       String
+  ipAddress  String?
+  success    Boolean
+  createdAt  DateTime @default(now())
+}
