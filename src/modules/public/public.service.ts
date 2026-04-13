@@ -5,6 +5,12 @@ import { env } from "../../config/env";
 import { AppError } from "../../utils/errors";
 import { getClinicalProfile } from "../clinical/clinical.service";
 
+const QR_OPTIONS = {
+  margin: 4,
+  width: 512,
+  errorCorrectionLevel: "H" as const
+};
+
 export async function setPublicPassword(userId: string, password: string) {
   await prisma.user.update({
     where: { id: userId },
@@ -35,17 +41,20 @@ export async function getPublicLink(userId: string) {
 
 export async function getPublicQr(userId: string) {
   const data = await getPublicLink(userId);
-  const qrSvg = await QRCode.toString(data.publicUrl, { type: "svg", margin: 1, width: 280 });
-  return { ...data, qrSvg };
+  const qrSvg = await QRCode.toString(data.publicUrl, { type: "svg", ...QR_OPTIONS });
+  const qrPngDataUrl = await QRCode.toDataURL(data.publicUrl, { ...QR_OPTIONS });
+  return { ...data, qrSvg, qrPngDataUrl };
 }
 
 export async function getPrintQr(userId: string) {
   const data = await getPublicLink(userId);
-  const qrSvg = await QRCode.toString(data.publicUrl, { type: "svg", margin: 1, width: 300 });
+  const qrSvg = await QRCode.toString(data.publicUrl, { type: "svg", ...QR_OPTIONS });
+  const qrPngDataUrl = await QRCode.toDataURL(data.publicUrl, { ...QR_OPTIONS });
   return {
     title: "MedRecords QR Code",
     publicUrl: data.publicUrl,
-    qrSvg
+    qrSvg,
+    qrPngDataUrl
   };
 }
 
